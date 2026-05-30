@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Contract — Demonstração Interativa</title>
+<link rel="stylesheet" href="style.css">
+<script src="script.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <div class="eyebrow">Fundamentos de SI — Demonstração Prática</div>
+      <h1>Smart <span>Contract</span><br>na Blockchain</h1>
+      <div class="header-desc">// simulação de contrato inteligente · Ethereum · Solidity</div>
+    </div>
+    <div class="deploy-badge">
+      Endereço fictício (simulação)<br>
+      <span class="addr" id="contract-addr">0xA3f8…7d2C</span>
+      <span style="display:block;margin-top:4px;font-size:10px;color:var(--text3)">⚠ Apenas fins educacionais — não deployado</span>
+    </div>
+  </header>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="stat-card">
+      <div class="stat-label">Estado do contrato</div>
+      <div class="stat-value" id="st-estado" style="font-size:15px;margin-bottom:6px">AGUARDANDO</div>
+      <div id="st-badge"><span class="badge badge-wait">Pendente</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Valor em custódia</div>
+      <div class="stat-value"><span id="st-contrato">0,00</span> <span style="font-size:14px;color:var(--text3)">ETH</span></div>
+      <div class="stat-sub">bloqueado no contrato</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Bloco atual</div>
+      <div class="stat-value" id="st-bloco" style="font-size:18px">19.847.201</div>
+      <div class="stat-sub" id="st-hash" style="font-size:10px">0x4f3a…c81d</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Transações executadas</div>
+      <div class="stat-value" id="st-txcount">0</div>
+      <div class="stat-sub">neste contrato</div>
+    </div>
+  </div>
+
+  <!-- ══ ROW 1: Carteiras + Execução lado a lado ══ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;align-items:stretch;">
+
+    <!-- Carteiras -->
+    <div class="panel" style="display:flex;flex-direction:column;">
+      <div class="panel-header">
+        <div class="panel-dot" style="background:var(--teal);box-shadow:0 0 8px rgba(45,212,191,.5)"></div>
+        <div class="panel-title">carteiras das partes</div>
+      </div>
+      <div class="panel-body" style="display:flex;flex-direction:column;">
+
+        <!-- Vendedor + Comprador lado a lado, crescem para preencher -->
+        <div class="party-grid" style="flex:1;align-items:stretch;">
+          <div class="party" id="card-vendedor" style="display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div class="party-icon" style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);margin-bottom:0;flex-shrink:0;">🏪</div>
+              <div>
+                <div class="party-name" style="margin-bottom:1px;">Vendedor</div>
+                <div class="party-addr" style="margin-bottom:0;">0x1A2b…F3C0</div>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;background:var(--bg4);border-radius:8px;padding:12px 14px;">
+              <div class="party-blabel" style="margin-bottom:4px;">saldo da carteira</div>
+              <div class="party-balance" style="color:var(--green);font-size:24px;" id="bal-vendedor">10,00 ETH</div>
+              <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text3);">Produto: xxxxxxxx"</div>
+            </div>
+          </div>
+          <div class="party" id="card-comprador" style="display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div class="party-icon" style="background:rgba(99,140,255,0.1);border:1px solid rgba(99,140,255,0.2);margin-bottom:0;flex-shrink:0;">👤</div>
+              <div>
+                <div class="party-name" style="margin-bottom:1px;">Comprador</div>
+                <div class="party-addr" style="margin-bottom:0;">0x9Dc4…A71E</div>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;background:var(--bg4);border-radius:8px;padding:12px 14px;">
+              <div class="party-blabel" style="margin-bottom:4px;">saldo da carteira</div>
+              <div class="party-balance" style="color:var(--blue);font-size:24px;" id="bal-comprador">5,00 ETH</div>
+              <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text3);">Pagamento: 2,50 ETH</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custódia do contrato -->
+        <div class="contract-wallet" id="contract-wallet" style="margin-top:12px;flex-shrink:0;">
+          <div class="contract-icon">🔒</div>
+          <div style="flex:1">
+            <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:3px">CONTRATO (custódia)</div>
+            <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text)" id="bal-contrato">0,00 ETH</div>
+            <div class="lock-indicator"><div class="lock-fill" id="lock-fill"></div></div>
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-align:right">
+            <div id="lock-status">desbloqueado</div>
+            <div style="margin-top:4px;font-size:10px">0xA3f8…7d2C</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Execução das funções -->
+    <div class="panel" style="display:flex;flex-direction:column;">
+      <div class="panel-header">
+        <div class="panel-dot" style="background:var(--amber);box-shadow:0 0 8px rgba(251,191,36,.5)"></div>
+        <div class="panel-title">execução das funções</div>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">interativo</span>
+      </div>
+      <div class="panel-body" style="padding:1rem 1.5rem;flex:1;display:flex;flex-direction:column;">
+        <div class="steps" style="flex:1;">
+
+          <div class="step" id="step-1">
+            <div class="step-num current" id="ico-1">1</div>
+            <div class="step-info">
+              <div class="step-title">depositar()</div>
+              <div class="step-desc">Comprador envia 2,50 ETH. O valor fica <strong style="color:var(--amber)">bloqueado</strong> no endereço do contrato — nem o vendedor consegue sacar.</div>
+              <div class="btns">
+                <button class="btn-blue" id="btn-dep" onclick="depositar()">⬇ Executar depositar()</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="step disabled" id="step-2">
+            <div class="step-num waiting" id="ico-2">2</div>
+            <div class="step-info">
+              <div class="step-title">Envio do produto (off-chain)</div>
+              <div class="step-desc">O vendedor vê o depósito na blockchain e despacha o produto. O contrato aguarda a confirmação do comprador.</div>
+              <div class="btns">
+                <button class="btn-ghost" id="btn-env" onclick="enviarProduto()" disabled>📦 Simular despacho</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="step disabled" id="step-3">
+            <div class="step-num waiting" id="ico-3">3</div>
+            <div class="step-info">
+              <div class="step-title">Desfecho: confirmar ou reembolsar</div>
+              <div class="step-desc">Se produto chegou → <strong style="color:var(--green)">confirmarRecebimento()</strong> libera ETH ao vendedor. Se prazo venceu → <strong style="color:var(--red)">solicitarReembolso()</strong> devolve ao comprador.</div>
+              <div class="btns">
+                <button class="btn-green" id="btn-conf" onclick="confirmar()" disabled>✓ confirmarRecebimento()</button>
+                <button class="btn-red" id="btn-reimb" onclick="reembolso()" disabled>↩ solicitarReembolso()</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Reset visível dentro do painel -->
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+          <button class="btn-reset" onclick="resetar()" style="display:flex;align-items:center;gap:7px;padding:9px 18px;font-size:12px;border-radius:8px;border:1px solid rgba(99,140,255,0.25);background:rgba(99,140,255,0.07);color:var(--blue);cursor:pointer;font-family:var(--mono);transition:all .15s;">
+            ⟳ Reiniciar simulação
+          </button>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">volta ao estado inicial · AGUARDANDO</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ ROW 2: Log full-width ══ -->
+  <div class="log-panel" style="margin-bottom:20px;">
+    <div class="panel-header">
+      <div class="panel-dot" style="background:var(--purple);box-shadow:0 0 8px rgba(167,139,250,.5)"></div>
+      <div class="panel-title">log da blockchain — eventos e transações</div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--green)" id="live-dot">● live</span>
+    </div>
+    <div class="log-body" id="log">
+      <div class="log-entry">
+        <span class="log-ts">00:00:00</span>
+        <span class="log-tx">DEPLOY</span>
+        <span class="log-info">Contrato ContratoCompraVenda deployado em 0xA3f8…7d2C · bloco #19847201</span>
+      </div>
+      <div class="log-entry">
+        <span class="log-ts">00:00:00</span>
+        <span class="log-tx">INFO</span>
+        <span class="log-msg">Aguardando depósito do comprador (2,50 ETH)…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ROW 3: Código do contrato full-width ══ -->
+  <div class="panel" style="margin-bottom:2rem;">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <div class="panel-title">código do contrato — Solidity</div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">imutável · público · verificado · fins educacionais</span>
+    </div>
+    <div style="padding:1rem;">
+      <div class="code-wrap">
+        <div class="code-tabs">
+          <div class="code-tab active">ContratoCompraVenda.sol</div>
+          <div style="margin-left:auto;padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--green)">✓ compilado</div>
+        </div>
+        <!-- Código dividido em 3 colunas para leitura ampla -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--border);">
+
+          <!-- Coluna 1: Cabeçalho, variáveis, enum, eventos -->
+          <div class="code-content" style="border-right:1px solid var(--border);">
+<span class="cm">// SPDX-License-Identifier: MIT</span>
+<span class="cm">// Autor: vendedor · 0x1A2b…F3C0</span>
+<span class="cm">// Produto: Laptop Pro 16" · 2,50 ETH</span>
+<span class="cm">// ⚠ Simulação educacional — não deployado</span>
+
+<span class="kw">pragma solidity</span> ^0.8.0;
+
+<span class="kw">contract</span> <span class="fn">ContratoCompraVenda</span> {
+
+  <span class="cm">// ── Partes do negócio ──────────────</span>
+  <span class="kw">address payable public</span> vendedor;
+  <span class="kw">address payable public</span> comprador;
+
+  <span class="cm">// ── Condições acordadas ────────────</span>
+  <span class="kw">uint public</span> valorETH = <span class="num">2.5 ether</span>;
+  <span class="kw">uint public</span> prazoEntrega = <span class="num">7 days</span>;
+  <span class="kw">uint public</span> dataDeposito;
+
+  <span class="cm">// ── Ciclo de vida ──────────────────</span>
+  <span class="cm">// Só avança, nunca volta</span>
+  <span class="kw">enum</span> Estado {
+    AGUARDANDO,   <span class="cm">// aguardando depósito</span>
+    ATIVO,        <span class="cm">// valor bloqueado</span>
+    CONCLUIDO,    <span class="cm">// vendedor recebeu</span>
+    REEMBOLSADO   <span class="cm">// comprador recebeu de volta</span>
+  }
+  Estado <span class="kw">public</span> estado = Estado.AGUARDANDO;
+
+  <span class="cm">// ── Eventos emitidos na blockchain ─</span>
+  <span class="ev">event</span> <span class="fn">DepositoRealizado</span>(
+    <span class="kw">address</span> comprador,
+    <span class="kw">uint</span> valor
+  );
+  <span class="ev">event</span> <span class="fn">EntregaConfirmada</span>(
+    <span class="kw">address</span> comprador,
+    <span class="kw">uint</span> valor
+  );
+  <span class="ev">event</span> <span class="fn">ReembolsoExecutado</span>(
+    <span class="kw">address</span> comprador,
+    <span class="kw">uint</span> valor
+  );
+
+  <span class="kw">constructor</span>(
+    <span class="kw">address payable</span> _vendedor
+  ) {
+    vendedor = _vendedor;
+  }
+          </div>
+
+          <!-- Coluna 2: depositar() e confirmarRecebimento() -->
+          <div class="code-content" style="border-right:1px solid var(--border);">
+  <span class="cm">// ────────────────────────────────────</span>
+  <span class="cm">// PASSO 1 — Comprador envia o valor</span>
+  <span class="cm">// ETH fica PRESO no contrato</span>
+  <span class="cm">// Ninguém acessa fora das regras</span>
+  <span class="cm">// ────────────────────────────────────</span>
+  <span class="kw">function</span> <span class="fn">depositar</span>()
+    <span class="kw">external payable</span>
+  {
+    <span class="kw">require</span>(
+      msg.value == valorETH,
+      <span class="str">"Valor incorreto —</span>
+      <span class="str"> envie exatamente 2,5 ETH"</span>
+    );
+    <span class="kw">require</span>(
+      estado == Estado.AGUARDANDO,
+      <span class="str">"Contrato já possui depósito"</span>
+    );
+
+    comprador = <span class="kw">payable</span>(msg.sender);
+    dataDeposito = block.timestamp;
+    estado = Estado.ATIVO;
+
+    <span class="ev">emit</span> <span class="fn">DepositoRealizado</span>(
+      msg.sender, msg.value
+    );
+  }
+
+  <span class="cm">// ────────────────────────────────────</span>
+  <span class="cm">// PASSO 2A — Comprador confirma</span>
+  <span class="cm">// → ETH vai automaticamente ao vendedor</span>
+  <span class="cm">// ────────────────────────────────────</span>
+  <span class="kw">function</span> <span class="fn">confirmarRecebimento</span>()
+    <span class="kw">external</span>
+  {
+    <span class="kw">require</span>(
+      msg.sender == comprador,
+      <span class="str">"Somente o comprador"</span>
+    );
+    <span class="kw">require</span>(
+      estado == Estado.ATIVO,
+      <span class="str">"Contrato não está ativo"</span>
+    );
+
+    estado = Estado.CONCLUIDO;
+    <span class="kw">uint</span> valor =
+      <span class="kw">address</span>(<span class="kw">this</span>).balance;
+    vendedor.transfer(valor);
+
+    <span class="ev">emit</span> <span class="fn">EntregaConfirmada</span>(
+      msg.sender, valor
+    );
+  }
+          </div>
+
+          <!-- Coluna 3: solicitarReembolso() e saldoContrato() -->
+          <div class="code-content">
+  <span class="cm">// ────────────────────────────────────</span>
+  <span class="cm">// PASSO 2B — Prazo venceu</span>
+  <span class="cm">// → ETH volta ao comprador</span>
+  <span class="cm">// ────────────────────────────────────</span>
+  <span class="kw">function</span> <span class="fn">solicitarReembolso</span>()
+    <span class="kw">external</span>
+  {
+    <span class="kw">require</span>(
+      msg.sender == comprador,
+      <span class="str">"Somente o comprador"</span>
+    );
+    <span class="kw">require</span>(
+      estado == Estado.ATIVO,
+      <span class="str">"Contrato não está ativo"</span>
+    );
+    <span class="kw">require</span>(
+      block.timestamp >
+        dataDeposito + prazoEntrega,
+      <span class="str">"Prazo ainda não venceu"</span>
+    );
+
+    estado = Estado.REEMBOLSADO;
+    <span class="kw">uint</span> valor =
+      <span class="kw">address</span>(<span class="kw">this</span>).balance;
+    comprador.transfer(valor);
+
+    <span class="ev">emit</span> <span class="fn">ReembolsoExecutado</span>(
+      msg.sender, valor
+    );
+  }
+
+  <span class="cm">// ────────────────────────────────────</span>
+  <span class="cm">// Utilitário — consulta pública</span>
+  <span class="cm">// ────────────────────────────────────</span>
+  <span class="kw">function</span> <span class="fn">saldoContrato</span>()
+    <span class="kw">public view
+    returns</span> (<span class="kw">uint</span>)
+  {
+    <span class="kw">return address</span>(<span class="kw">this</span>).balance;
+  }
+
+}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concepts -->
+  <div style="margin-bottom:1.25rem">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">// conceitos-chave demonstrados</div>
+  </div>
+  <div class="concepts">
+    <div class="concept">
+      <span class="concept-icon">🔒</span>
+      <div class="concept-name">custódia automática</div>
+      <div class="concept-desc">ETH fica preso no endereço do contrato. Nenhuma das partes pode sacar sem cumprir as condições.</div>
+    </div>
+    <div class="concept">
+      <span class="concept-icon">📋</span>
+      <div class="concept-name">require() — regras</div>
+      <div class="concept-desc">Se uma condição falhar, a transação inteira é revertida. Nenhum estado muda, nenhum ETH se move.</div>
+    </div>
+    <div class="concept">
+      <span class="concept-icon">🔄</span>
+      <div class="concept-name">máquina de estados</div>
+      <div class="concept-desc">O contrato avança por estados imutáveis: AGUARDANDO → ATIVO → CONCLUÍDO / REEMBOLSADO.</div>
+    </div>
+    <div class="concept">
+      <span class="concept-icon">🤝</span>
+      <div class="concept-name">sem intermediário</div>
+      <div class="concept-desc">Nenhum banco, cartório ou plataforma. O código é o árbitro — executado pela própria rede.</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <span>Fundamentos de SI · Smart Contracts · <strong>Simulação educacional</strong></span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="color:var(--text3)">Linguagem: Solidity ^0.8.0 · Rede: Ethereum</span>
+      <button class="btn-reset" onclick="resetar()">⟳ Reiniciar simulação</button>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
